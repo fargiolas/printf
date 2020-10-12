@@ -35,6 +35,8 @@
 
 #include "printf.h"
 
+void ets_putc(char c);
+#define _putchar ets_putc
 
 // define this globally (e.g. gcc -DPRINTF_INCLUDE_CONFIG_H ...) to include the
 // printf_config.h header file
@@ -185,6 +187,7 @@ static inline bool _is_digit(char ch)
 
 
 // internal ASCII string to unsigned int conversion
+ICACHE_FLASH_ATTR
 static unsigned int _atoi(const char** str)
 {
   unsigned int i = 0U;
@@ -196,13 +199,15 @@ static unsigned int _atoi(const char** str)
 
 
 // output the specified string in reverse, taking care of any zero-padding
+ICACHE_FLASH_ATTR
 static size_t _out_rev(out_fct_type out, char* buffer, size_t idx, size_t maxlen, const char* buf, size_t len, unsigned int width, unsigned int flags)
 {
   const size_t start_idx = idx;
+  size_t i;
 
   // pad spaces up to given width
   if (!(flags & FLAGS_LEFT) && !(flags & FLAGS_ZEROPAD)) {
-    for (size_t i = len; i < width; i++) {
+    for (i = len; i < width; i++) {
       out(' ', buffer, idx++, maxlen);
     }
   }
@@ -224,6 +229,7 @@ static size_t _out_rev(out_fct_type out, char* buffer, size_t idx, size_t maxlen
 
 
 // internal itoa format
+ICACHE_FLASH_ATTR
 static size_t _ntoa_format(out_fct_type out, char* buffer, size_t idx, size_t maxlen, char* buf, size_t len, bool negative, unsigned int base, unsigned int prec, unsigned int width, unsigned int flags)
 {
   // pad leading zeros
@@ -278,6 +284,7 @@ static size_t _ntoa_format(out_fct_type out, char* buffer, size_t idx, size_t ma
 
 
 // internal itoa for 'long' type
+ICACHE_FLASH_ATTR
 static size_t _ntoa_long(out_fct_type out, char* buffer, size_t idx, size_t maxlen, unsigned long value, bool negative, unsigned long base, unsigned int prec, unsigned int width, unsigned int flags)
 {
   char buf[PRINTF_NTOA_BUFFER_SIZE];
@@ -303,6 +310,7 @@ static size_t _ntoa_long(out_fct_type out, char* buffer, size_t idx, size_t maxl
 
 // internal itoa for 'long long' type
 #if defined(PRINTF_SUPPORT_LONG_LONG)
+ICACHE_FLASH_ATTR
 static size_t _ntoa_long_long(out_fct_type out, char* buffer, size_t idx, size_t maxlen, unsigned long long value, bool negative, unsigned long long base, unsigned int prec, unsigned int width, unsigned int flags)
 {
   char buf[PRINTF_NTOA_BUFFER_SIZE];
@@ -336,6 +344,7 @@ static size_t _etoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, d
 
 
 // internal ftoa for fixed decimal floating point
+ICACHE_FLASH_ATTR
 static size_t _ftoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, double value, unsigned int prec, unsigned int width, unsigned int flags)
 {
   char buf[PRINTF_FTOA_BUFFER_SIZE];
@@ -464,6 +473,7 @@ static size_t _ftoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, d
 
 #if defined(PRINTF_SUPPORT_EXPONENTIAL)
 // internal ftoa variant for exponential floating-point type, contributed by Martijn Jasperse <m.jasperse@gmail.com>
+ICACHE_FLASH_ATTR
 static size_t _etoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, double value, unsigned int prec, unsigned int width, unsigned int flags)
 {
   // check for NaN and special values
@@ -574,6 +584,7 @@ static size_t _etoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, d
 
 
 // internal vsnprintf
+ICACHE_FLASH_ATTR
 static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const char* format, va_list va)
 {
   unsigned int flags, width, precision, n;
@@ -858,7 +869,7 @@ static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const
 
 
 ///////////////////////////////////////////////////////////////////////////////
-
+ICACHE_FLASH_ATTR
 int printf_(const char* format, ...)
 {
   va_list va;
@@ -869,7 +880,7 @@ int printf_(const char* format, ...)
   return ret;
 }
 
-
+ICACHE_FLASH_ATTR
 int sprintf_(char* buffer, const char* format, ...)
 {
   va_list va;
@@ -879,7 +890,7 @@ int sprintf_(char* buffer, const char* format, ...)
   return ret;
 }
 
-
+ICACHE_FLASH_ATTR
 int snprintf_(char* buffer, size_t count, const char* format, ...)
 {
   va_list va;
@@ -889,20 +900,20 @@ int snprintf_(char* buffer, size_t count, const char* format, ...)
   return ret;
 }
 
-
+ICACHE_FLASH_ATTR
 int vprintf_(const char* format, va_list va)
 {
   char buffer[1];
   return _vsnprintf(_out_char, buffer, (size_t)-1, format, va);
 }
 
-
+ICACHE_FLASH_ATTR
 int vsnprintf_(char* buffer, size_t count, const char* format, va_list va)
 {
   return _vsnprintf(_out_buffer, buffer, count, format, va);
 }
 
-
+ICACHE_FLASH_ATTR
 int fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...)
 {
   va_list va;

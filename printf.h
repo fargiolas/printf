@@ -40,6 +40,7 @@
 extern "C" {
 #endif
 
+#include "os_type.h"
 
 /**
  * Output a character to a custom device like UART, used by the printf() function
